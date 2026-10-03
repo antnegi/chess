@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chess Coach</title>
   
   <!-- Chess King Tab Favicon (Inline SVG Data URI) -->
@@ -9,53 +10,72 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
   <style>
+    :root {
+      --board-size: min(440px, 92vw);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
       display: flex;
       flex-direction: column;
       min-height: 100vh;
       margin: 0;
-      padding: 20px 20px 0 20px; 
-      background: #1e1e1e; 
+      padding: 16px 12px 0 12px; 
+      background: #181818; 
       color: #fff; 
-      box-sizing: border-box;
     }
 
     #app-container {
       display: flex;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
       flex: 1;
       justify-content: center;
+      align-items: flex-start;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
     }
     
     #board-container {
       position: relative;
-      width: 440px;
-      height: 440px;
+      width: var(--board-size);
+      height: var(--board-size);
       flex-shrink: 0;
+      margin: 0 auto;
+      touch-action: manipulation;
     }
-    #board { width: 440px; height: 440px; }
+
+    #board { 
+      width: var(--board-size); 
+      height: var(--board-size); 
+    }
     
     #arrow-overlay {
       position: absolute;
       top: 0;
       left: 0;
-      width: 440px;
-      height: 440px;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
       z-index: 100;
     }
 
-    /* Selected piece source square highlight */
     .highlight-selected {
       box-shadow: inset 0 0 4px 3px #f6e05e !important;
     }
 
-    /* Translucent destination move dots */
     .move-dot {
       position: absolute;
-      width: 22px;
-      height: 22px;
+      width: 32%;
+      height: 32%;
+      max-width: 22px;
+      max-height: 22px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.45);
       top: 50%;
@@ -71,7 +91,6 @@
       background: rgba(255, 255, 255, 0.7);
     }
 
-    /* Green-tinted dot for the engine's best move */
     .move-dot.best-move-dot {
       background: rgba(34, 197, 94, 0.85) !important;
       box-shadow: 0 0 8px rgba(34, 197, 94, 0.8) !important;
@@ -81,44 +100,65 @@
       transform: translate(-50%, -50%) scale(1.3);
     }
 
-    #panel { 
+    #panel, #notation-panel { 
       width: 320px; 
       display: flex; 
       flex-direction: column; 
       gap: 10px; 
       flex-shrink: 0;
+      background: #222;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #333;
     }
-    .control-row { display: flex; gap: 8px; align-items: center; }
-    label { font-size: 13px; font-weight: bold; }
-    select { padding: 6px 10px; background: #2a2a2a; color: #fff; border: 1px solid #555; border-radius: 4px; flex: 1; }
-    .btn { padding: 9px; font-weight: bold; cursor: pointer; border-radius: 4px; border: none; background: #337ab7; color: white; }
-    .btn-secondary { background: #555; }
-    .btn-undo { background: #e67e22; color: white; }
-    .btn-reset { background: #d9534f; }
-    #log { background: #111; padding: 12px; height: 195px; overflow-y: auto; border: 1px solid #444; font-family: monospace; font-size: 12px; line-height: 1.4; border-radius: 4px; }
-    #eval { font-size: 1.1em; font-weight: bold; margin-bottom: 5px; }
 
-    #notation-panel {
-      width: 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex-shrink: 0;
+    .control-row { display: flex; gap: 8px; align-items: center; }
+    label { font-size: 13px; font-weight: bold; color: #bbb; }
+    select { padding: 8px 10px; background: #2a2a2a; color: #fff; border: 1px solid #555; border-radius: 4px; flex: 1; font-size: 13px; }
+    
+    .btn { 
+      padding: 10px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      border-radius: 5px; 
+      border: none; 
+      background: #2563eb; 
+      color: white; 
+      font-size: 13px;
+      transition: background 0.15s ease;
     }
+    .btn:active { transform: scale(0.98); }
+    .btn-secondary { background: #475569; }
+    .btn-undo { background: #d97706; color: white; }
+    .btn-reset { background: #dc2626; }
+    
+    #log { 
+      background: #111; 
+      padding: 10px; 
+      height: 155px; 
+      overflow-y: auto; 
+      border: 1px solid #333; 
+      font-family: monospace; 
+      font-size: 12px; 
+      line-height: 1.4; 
+      border-radius: 4px; 
+    }
+    #eval { font-size: 1.1em; font-weight: bold; }
+
     .history-card {
-      background: #262626;
-      border: 1px solid #444;
+      background: #181818;
+      border: 1px solid #333;
       border-radius: 4px;
       display: flex;
       flex-direction: column;
-      height: 190px;
+      height: 155px;
     }
     .history-header {
       padding: 6px 10px;
-      background: #333;
+      background: #282828;
       font-size: 12px;
       font-weight: bold;
-      border-bottom: 1px solid #444;
+      border-bottom: 1px solid #333;
       display: grid;
       grid-template-columns: 35px 1fr 1fr;
     }
@@ -133,22 +173,22 @@
       display: grid;
       grid-template-columns: 35px 1fr 1fr;
       padding: 3px 0;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid #222;
     }
     .move-row:last-child { border-bottom: none; }
-    .move-num { color: #888; }
+    .move-num { color: #777; }
     .move-ply { 
       cursor: pointer; 
-      padding: 1px 4px;
+      padding: 2px 4px;
       border-radius: 3px;
       user-select: none;
     }
     .move-ply:hover { 
-      background: #3a3a3a;
-      color: #64b5f6; 
+      background: #333;
+      color: #60a5fa; 
     }
     .move-ply.active-ply {
-      background: #337ab7;
+      background: #2563eb;
       color: #fff;
       font-weight: bold;
     }
@@ -160,14 +200,13 @@
     }
     textarea {
       width: 100%;
-      height: 65px;
+      height: 55px;
       background: #111;
-      border: 1px solid #444;
+      border: 1px solid #333;
       color: #ddd;
       font-family: monospace;
       font-size: 11px;
       padding: 6px;
-      box-sizing: border-box;
       border-radius: 4px;
       resize: none;
     }
@@ -176,28 +215,35 @@
       gap: 6px;
     }
 
-    /* Aesthetic Footer Styling */
     footer {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 16px 0;
-      margin-top: 24px;
+      gap: 6px;
+      padding: 14px 0;
+      margin-top: 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 0.8px;
       text-transform: uppercase;
       color: #777;
+      text-align: center;
     }
     footer span.author {
       color: #ccc;
       font-weight: 600;
       letter-spacing: 1px;
-      position: relative;
     }
-    footer .bullet {
-      color: #444;
+
+    /* Responsive adjustments for phones and tablets */
+    @media (max-width: 1080px) {
+      #app-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      #panel, #notation-panel {
+        width: var(--board-size);
+      }
     }
   </style>
 </head>
@@ -220,11 +266,13 @@
     </div>
 
     <div id="panel">
-      <h3 id="turn" style="margin: 0;">White to move</h3>
-      <div id="eval">Evaluation: 0.00</div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="turn" style="margin: 0; font-size: 15px;">White to move</h3>
+        <div id="eval">0.00</div>
+      </div>
 
       <div class="control-row">
-        <label for="sideSelect">Analyze for:</label>
+        <label for="sideSelect">Analyze:</label>
         <select id="sideSelect">
           <option value="auto">Current Turn</option>
           <option value="w">White</option>
@@ -235,16 +283,16 @@
 
       <div class="control-row">
         <button class="btn btn-undo" style="flex: 1;" onclick="undoMove()">⬅ Undo</button>
-        <button class="btn btn-reset" style="flex: 1;" onclick="resetBoard()">Reset Game</button>
+        <button class="btn btn-reset" style="flex: 1;" onclick="resetBoard()">Reset</button>
       </div>
 
-      <button class="btn" style="background: #c0392b;" onclick="getThreat()">1. Threat Alert</button>
+      <button class="btn" style="background: #b91c1c;" onclick="getThreat()">1. Threat Alert</button>
       <button class="btn" onclick="getBestMove()">2. Best Move</button>
-      <div id="log">Engine ready. Click or drag a piece to start!</div>
+      <div id="log">Engine ready. Tap or drag a piece to start!</div>
     </div>
 
     <div id="notation-panel">
-      <label>Move History (Click any move to jump):</label>
+      <label>Move History (Tap move to jump):</label>
       <div class="history-card">
         <div class="history-header">
           <span>#</span>
@@ -256,16 +304,15 @@
 
       <div class="io-container">
         <label for="pgnInput">Paste PGN / FEN to Analyze:</label>
-        <textarea id="pgnInput" placeholder="Paste PGN (e.g. 1. e4 e5 2. Nf3...) or FEN string here"></textarea>
+        <textarea id="pgnInput" placeholder="Paste PGN or FEN string here"></textarea>
         <div class="io-btn-row">
-          <button class="btn" style="flex: 1; background: #2e7d32;" onclick="loadPgnOrFen()">Load Game / FEN</button>
+          <button class="btn" style="flex: 1; background: #166534;" onclick="loadPgnOrFen()">Load</button>
           <button class="btn btn-secondary" style="flex: 1;" onclick="copyCurrentPgn()">Copy PGN</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Aesthetic Footer -->
   <footer>
     <span>Designed &amp; Developed by</span>
     <span class="author">Antriksh Singh Negi</span>
@@ -411,10 +458,16 @@
       });
     }
 
+    // Dynamic Board Coordinate Calculations based on actual rendered width
+    function getBoardPixelSize() {
+      return document.getElementById('board').getBoundingClientRect().width;
+    }
+
     function squareToCoords(square, orientation) {
       const file = square.charCodeAt(0) - 97;
       const rank = parseInt(square[1]) - 1;
-      const sqSize = 440 / 8;
+      const boardWidth = getBoardPixelSize();
+      const sqSize = boardWidth / 8;
 
       let col = orientation === 'white' ? file : 7 - file;
       let row = orientation === 'white' ? 7 - rank : rank;
@@ -431,7 +484,8 @@
       const p2 = squareToCoords(toSq, orientation);
 
       const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-      const headOffset = 10; 
+      const boardWidth = getBoardPixelSize();
+      const headOffset = (boardWidth / 440) * 10; 
       const targetX = p2.x - Math.cos(angle) * headOffset;
       const targetY = p2.y - Math.sin(angle) * headOffset;
 
@@ -446,7 +500,7 @@
       const markerId = colorType === 'red' ? 'url(#arrowhead-red)' : 'url(#arrowhead-green)';
 
       line.setAttribute('stroke', strokeColor);
-      line.setAttribute('stroke-width', '5.5');
+      line.setAttribute('stroke-width', Math.max(3.5, (boardWidth / 440) * 5.5));
       line.setAttribute('stroke-linecap', 'round');
       line.setAttribute('marker-end', markerId);
 
@@ -490,7 +544,8 @@
           $dot.addClass('best-move-dot');
         }
 
-        $dot.on('click', function(e) {
+        $dot.on('click touchend', function(e) {
+          e.preventDefault();
           e.stopPropagation();
           executeMove(square, m.to);
         });
@@ -519,7 +574,7 @@
       requestEvaluation();
     }
 
-    $('#board').on('click', '.square-55d63', function(e) {
+    $('#board').on('click touchend', '.square-55d63', function(e) {
       if ($(e.target).hasClass('move-dot')) return;
 
       const square = $(this).attr('data-square');
@@ -563,7 +618,7 @@
         if (match) {
           let cp = parseInt(match[1]) / 100;
           if (game.turn() === 'b') cp = -cp;
-          document.getElementById('eval').innerText = `Evaluation: ${cp > 0 ? '+' : ''}${cp.toFixed(2)}`;
+          document.getElementById('eval').innerText = `${cp > 0 ? '+' : ''}${cp.toFixed(2)}`;
         }
       }
 
@@ -590,10 +645,10 @@
           clearArrows();
           const threats = detectDirectThreats(targetSide);
           if (threats.length > 0) {
-            log(`<b>[Direct Attack Threats]:</b>`);
+            log(`<b>[Direct Attacks]:</b>`);
             threats.forEach(t => {
               addArrow(t.from, t.to, 'red');
-              log(`&bull; ${t.piece.toUpperCase()} on ${t.from} &rarr; captures on ${t.to}`);
+              log(`&bull; ${t.piece.toUpperCase()} ${t.from} &rarr; ${t.to}`);
             });
           }
 
@@ -604,7 +659,7 @@
             if (!exists) {
               addArrow(oppBestFrom, oppBestTo, 'red');
             }
-            log(`<b>[Top Opponent Threat]:</b> Engine plans <b>${move}</b> if unstopped.`);
+            log(`<b>[Top Opponent Threat]:</b> ${move}`);
           }
           pendingAction = null;
         }
@@ -629,6 +684,15 @@
       },
       onSnapEnd: () => {
         board.position(game.fen());
+      }
+    });
+
+    // Handle fluid window resizing
+    window.addEventListener('resize', () => {
+      board.resize();
+      redrawArrows();
+      if (selectedSquare) {
+        showMoveDots(selectedSquare);
       }
     });
 
@@ -685,7 +749,7 @@
       renderMoveHistory();
       logBox.innerHTML = "Board reset.";
       document.getElementById('turn').innerText = "White to move";
-      document.getElementById('eval').innerText = "Evaluation: 0.00";
+      document.getElementById('eval').innerText = "0.00";
     }
   </script>
 </body>
